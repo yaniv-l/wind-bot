@@ -1,5 +1,7 @@
+import datetime
 from enum import Enum
 import re
+import json
 
 class WindSpdUnit(Enum):
     KN = 'kn'
@@ -9,6 +11,7 @@ class WindSpdUnit(Enum):
 class windInfo:
     
     def __init__(self, sourceName, sourceURL, speedUnit = None, strengthSeperator = '-'):
+        self._scrapTimeStamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self._inputWindStrengthUnit = speedUnit or WindSpdUnit.KH
         self._windDir = None
         self._windDirName = None
@@ -22,6 +25,7 @@ class windInfo:
         self._infoImage = ""
         self._waterTemp = None
         self._Temp = None
+        self._barometerPreasure = None
         self._strengthSeperator = strengthSeperator
 
     # Utils functions
@@ -83,7 +87,29 @@ class windInfo:
             return strVal[0]
         else:
             return None
+
+    def encode_complex(self, z):
+        '''
+        To translate a custom object into JSON, we need to provide an encoding function to the 
+        dump() method’s default parameter. The json module will call this function on any objects that aren’t 
+        natively serializable.
+        '''
+        if isinstance(z, WindSpdUnit):
+            # if object is of type WindSpdUnits, we'll return the value
+            return z.value
+        else:
+            type_name = z.__class__.__name__
+            raise TypeError(f"Object of type '{type_name}' is not JSON serializable")
+
+    # def decode_complex(dct):
+    #     if "__complex__" in dct:
+    #         return complex(dct["real"], dct["imag"])
+    #     return dct
     
+
+    def toJSON(self):
+        return json.dumps(self.__dict__, default=self.encode_complex, indent=4,)
+
     # Properties - setters and getters
 
     @property
@@ -137,3 +163,78 @@ class windInfo:
                     self._inputWindStrengthUnit = WindSpdUnit[units.upper()]
                 self._windAvg = self.getNumber(strength[0])
                 self._windGust = self.getNumber(strength[1])
+
+
+    @property
+    def infoDate(self):
+        return self._infoDate
+
+    @infoDate.setter
+    def infoDate(self, value):
+        self._infoDate = value
+
+    @property
+    def infoTime(self):
+        return self._infoTime
+
+    @infoTime.setter
+    def infoTime(self, value):
+        self._infoTime = value
+
+    @property
+    def infoSourceName(self):
+        return self._infoSourceName
+
+    @infoSourceName.setter
+    def infoSourceName(self, value):
+        self._infoSourceName = value
+
+    @property
+    def infoSourceURL(self):
+        return self._infoSourceURL
+
+    @infoSourceURL.setter
+    def infoSourceURL(self, value):
+        self._infoSourceURL = value
+
+    @property
+    def infoImage(self):
+        return self._infoImage
+
+    @infoImage.setter
+    def infoImage(self, value):
+        self._infoImage = value
+
+    @property
+    def waterTemp(self):
+        return self._waterTemp
+
+    @waterTemp.setter
+    def waterTemp(self, value):
+        self._waterTemp = value
+
+    @property
+    def Temp(self):
+        return self._Temp
+
+    @Temp.setter
+    def Temp(self, value):
+        self._Temp = value
+
+    @property
+    def barometerPreasure(self):
+        return self._barometerPreasure
+
+    @barometerPreasure.setter
+    def barometerPreasure(self, value):
+        self._barometerPreasure = value
+
+    @property
+    def scrapTimeStamp(self):
+        return self._scrapTimeStamp
+
+    @property
+    def strengthSeperator(self):
+        return self._strengthSeperator
+
+    

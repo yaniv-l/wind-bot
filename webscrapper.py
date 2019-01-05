@@ -2,6 +2,9 @@ from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
+import json
+from types import SimpleNamespace as Namespace
+
 
 from windInfo import windInfo, WindSpdUnit
 
@@ -57,6 +60,7 @@ def get_wind():
         info._infoDate = html.find("h3", attrs={"class" : "inf-time-date rel-gradient english"}).text
         info._infoTime = html.find("p", attrs={"class" : "inf-time-time english"}).text
         info.windStrength = html.find("div", attrs={"class" : "inf-wind-strength"}).contents[0].text
+        jsonInfo = info.toJSON()
     else:   
         # Raise an exception if we failed to get any data from the url
         raise Exception('Error retrieving contents at {}'.format(url))
