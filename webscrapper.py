@@ -56,7 +56,7 @@ def get_wind():
         info.windDir = html.find("div", attrs={"class" : "inf-wind-direction"}).contents[0].text
         info._infoDate = html.find("h3", attrs={"class" : "inf-time-date rel-gradient english"}).text
         info._infoTime = html.find("p", attrs={"class" : "inf-time-time english"}).text
-        info._windStrength = html.find("div", attrs={"class" : "inf-wind-strength"}).contents[0].text
+        info.windStrength = html.find("div", attrs={"class" : "inf-wind-strength"}).contents[0].text
     else:   
         # Raise an exception if we failed to get any data from the url
         raise Exception('Error retrieving contents at {}'.format(url))

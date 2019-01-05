@@ -8,20 +8,21 @@ class WindSpdUnit(Enum):
 
 class windInfo:
     
-    def __init__(self, sourceName, sourceURL, speedUnit = None):
+    def __init__(self, sourceName, sourceURL, speedUnit = None, strengthSeperator = '-'):
         self._inputWindStrengthUnit = speedUnit or WindSpdUnit.KH
-        self._windDir = -1
+        self._windDir = None
         self._windDirName = None
-        self._windAvg = 0
-        self._windGust = 0
-        self._windStrength = ""
+        self._windAvg = None
+        self._windGust = None
+        self._windStrength = None
         self._infoDate = None
         self._infoTime = None
         self._infoSourceName = sourceName
         self._infoSourceURL = sourceURL
         self._infoImage = ""
-        self._waterTemp = -1
-        self._Temp = -1
+        self._waterTemp = None
+        self._Temp = None
+        self._strengthSeperator = strengthSeperator
 
     # Utils functions
 
@@ -104,3 +105,35 @@ class windInfo:
     @windDirName.setter
     def windDirName(self, value):
         self._windDirName = value
+
+    @property
+    def windAvg(self):
+        return self._windAvg
+
+    @windAvg.setter
+    def windAvg(self, value):
+        self._windAvg = value
+
+    @property
+    def windGust(self):
+        return self._windGust
+
+    @windGust.setter
+    def windGust(self, value):
+        self._windGust = value
+
+    @property
+    def windStrength(self):
+        return self._windStrength
+
+    @windStrength.setter
+    def windStrength(self, value):
+        self._windStrength = value
+        if self.windAvg == None and self.windGust == None:
+            strength = value.split(self._strengthSeperator)
+            if  strength and strength.__len__() == 2:
+                units = self.getString(strength[0])
+                if units and units.upper() in WindSpdUnit.__members__:
+                    self._inputWindStrengthUnit = WindSpdUnit[units.upper()]
+                self._windAvg = self.getNumber(strength[0])
+                self._windGust = self.getNumber(strength[1])
