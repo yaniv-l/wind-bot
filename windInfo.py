@@ -33,13 +33,13 @@ class windInfo:
         elif windDirVal > 5.625 and windDirVal <= 28.125:
             return 'NNE'
         elif windDirVal > 28.125 and windDirVal <= 50.625:
-            return 'NNE'
+            return 'ENE'
         elif windDirVal > 50.625 and windDirVal <= 129.375:
             return 'E' 
         elif windDirVal > 129.375 and windDirVal <= 151.875:
             return 'SE'
         elif windDirVal > 151.875 and windDirVal <= 174.375:
-            return 'SSE'
+            return 'ESE'
         elif windDirVal > 174.375 and windDirVal <= 196.875:
             return 'S'
         elif windDirVal > 196.875 and windDirVal <= 219.375:
