@@ -11,7 +11,8 @@ class WindSpdUnit(Enum):
 class windInfo:
     
     def __init__(self, sourceName, sourceURL, speedUnit = None, strengthSeperator = '-'):
-        self._scrapTimeStamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self._scrapTimeStamp = datetime.datetime.now().timestamp()
+        self._scrapTimeStampStr = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self._inputWindStrengthUnit = speedUnit or WindSpdUnit.KH
         self._windDir = None
         self._windDirName = None
@@ -107,8 +108,9 @@ class windInfo:
     #     return dct
     
 
-    def toJSON(self):
-        return json.dumps(self.__dict__, default=self.encode_complex, indent=4,)
+    def toJSON(self, asString = False):
+        j = json.dumps(self.__dict__, default=self.encode_complex, indent=4).encode()
+        return j if asString else json.loads(j)
 
     # Properties - setters and getters
 

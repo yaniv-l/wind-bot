@@ -7,6 +7,7 @@ from types import SimpleNamespace as Namespace
 
 
 from windInfo import windInfo, WindSpdUnit
+import firedata
 
 def simple_get(url):
     """
@@ -61,6 +62,8 @@ def get_wind():
         info._infoTime = html.find("p", attrs={"class" : "inf-time-time english"}).text
         info.windStrength = html.find("div", attrs={"class" : "inf-wind-strength"}).contents[0].text
         jsonInfo = info.toJSON()
+        firedata.writeWindReads(jsonInfo)
+        firedata.readWindReads('Prigal')
     else:   
         # Raise an exception if we failed to get any data from the url
         raise Exception('Error retrieving contents at {}'.format(url))
