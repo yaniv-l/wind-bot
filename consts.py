@@ -46,6 +46,7 @@ class WINDREADSFIELDS(object):
     STRENGTH_SEPERATOR = "_strengthSeperator"
     READ_ALERTED = "_readAlerted"
     WIND_CHANGED = "_windChanged"
+    DOC_ID = "_id"
 
     def __setattr__(self, *_):
         # Prevent from changing the class memebers values

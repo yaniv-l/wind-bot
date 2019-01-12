@@ -30,3 +30,10 @@ def readWindReads(readSource, limitReads = 6):
         data.update({"_id" : doc.id})
         docs.append(data)
     return docs
+
+def setWindAlert(doc_id, wind_change):
+    windreads_ref = db.collection(u'wind-reads').document(doc_id)
+    windreads_ref.update({
+        u'_readAlerted' : True,
+        u'_windChanged' : wind_change
+    })
