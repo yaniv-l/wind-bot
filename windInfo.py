@@ -28,6 +28,8 @@ class windInfo:
         self._Temp = None
         self._barometerPreasure = None
         self._strengthSeperator = strengthSeperator
+        self._readAlerted = False
+        self._windChanged = None
 
     # Utils functions
 

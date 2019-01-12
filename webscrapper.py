@@ -5,9 +5,11 @@ from bs4 import BeautifulSoup
 import json
 from types import SimpleNamespace as Namespace
 
-
+import consts
 from windInfo import windInfo, WindSpdUnit
 import firedata
+import wind_tracker
+
 
 def simple_get(url):
     """
@@ -56,14 +58,15 @@ def get_wind():
 
     if response is not None:
         html = BeautifulSoup(response, 'html.parser')
-        info = windInfo('Prigal', url, WindSpdUnit.KN)
+        info = windInfo(consts.SOURCEREAD.PRIGAL, url, WindSpdUnit.KN)
         info.windDir = html.find("div", attrs={"class" : "inf-wind-direction"}).contents[0].text
         info._infoDate = html.find("h3", attrs={"class" : "inf-time-date rel-gradient english"}).text
         info._infoTime = html.find("p", attrs={"class" : "inf-time-time english"}).text
         info.windStrength = html.find("div", attrs={"class" : "inf-wind-strength"}).contents[0].text
         jsonInfo = info.toJSON()
         firedata.writeWindReads(jsonInfo)
-        firedata.readWindReads('Prigal')
+        res = firedata.readWindReads(consts.SOURCEREAD.PRIGAL)
+        wind_tracker.sense_for_wind_change(res)
     else:   
         # Raise an exception if we failed to get any data from the url
         raise Exception('Error retrieving contents at {}'.format(url))
