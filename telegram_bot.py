@@ -21,7 +21,7 @@ def sendWindAlert(alert_message):
     updater = Updater('XXX')
     dp = updater.dispatcher
     dp.bot.send_message(chat_id=XXX, text=alert_message, parse_mode=ParseMode.MARKDOWN)
-    dp.bot.send_photo(chat_id=-367902416, photo=get_url())
+    dp.bot.send_photo(chat_id=XXX, photo=get_url())
 
 
 def init_bot_listener():
