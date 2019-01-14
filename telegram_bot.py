@@ -19,14 +19,14 @@ def windalert(bot, update):
 
 
 def sendWindAlert(alert_message):
-    updater = Updater('XXX')
+    updater = Updater('')
     dp = updater.dispatcher
     dp.bot.send_message(chat_id=XXX, text=alert_message, parse_mode=ParseMode.MARKDOWN)
     dp.bot.send_photo(chat_id=XXX, photo=get_url())
 
 
 def init_bot_listener():
-    updater = Updater('XXX')
+    updater = Updater('')
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('windalert',windalert))
     updater.start_polling()
