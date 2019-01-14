@@ -1,13 +1,14 @@
 from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 import requests
+import datetime
 
 
 def get_url():
     # TODO - dynamicly scrap the summery image of wind read from page
     # contents = requests.get('http://wind.co.il/%D7%9E%D7%96%D7%92-%D7%90%D7%95%D7%99%D7%A8/%D7%A9%D7%99%D7%93%D7%95%D7%A8-%D7%97%D7%99/').json()
     # url = contents['url']
-    url = "http://wind.co.il/weather/lab/broadcast.jpg?_ts=1547319993"
+    url = "http://wind.co.il/weather/lab/broadcast.jpg?t=" + datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
     return url
 
 
@@ -27,7 +28,7 @@ def sendWindAlert(alert_message):
 def init_bot_listener():
     updater = Updater('XXX')
     dp = updater.dispatcher
-    dp.add_handler(CommandHandler('wind_bot',windalert))
+    dp.add_handler(CommandHandler('windalert',windalert))
     updater.start_polling()
     updater.idle()
 

@@ -1,0 +1,8 @@
+#
+####### requirements.txt #######
+#
+###### Requirements without Version Specifiers ######
+requests
+beautifulsoup4
+firebase-admin
+python-telegram-bot
