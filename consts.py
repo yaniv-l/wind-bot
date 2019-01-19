@@ -1,3 +1,6 @@
+from collections import namedtuple
+import json
+
 # Declare constant variables here
 
 class WINDCHANGE(object):
@@ -51,3 +54,16 @@ class WINDREADSFIELDS(object):
     def __setattr__(self, *_):
         # Prevent from changing the class memebers values
         pass
+
+class SECRETS(object):
+    # Read the json containing the serets
+    with open("secrests.json.secret") as json_data:
+        data = json.load(json_data)
+    
+    CHATID = int(data["wind_alert_group_chat_id"])
+    BOTID = data["bot_token"]
+    
+    @staticmethod
+    def from_dict(source):
+        # ...
+        return namedtuple("SECRETS", source.keys())(*source.values())
