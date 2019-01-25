@@ -18,7 +18,7 @@ def simple_get(url):
     text content, otherwise return None.
     """
     try:
-        with closing(get(url, stream=True)) as resp:
+        with closing(get(url, stream=True, verify=False)) as resp:
             if is_good_response(resp):
                 return resp.content
             else:

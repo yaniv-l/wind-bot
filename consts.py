@@ -1,5 +1,6 @@
 from collections import namedtuple
 import json
+from utils import config
 
 # Declare constant variables here
 
@@ -22,8 +23,10 @@ class SOURCEREAD(object):
         pass
 
 class WINDDIFF(object):
-    MIN_ALERT = 1
-    IMPORTANT_ALERT = 3
+    MIN_DIFF_ALERT = config.getint("winddiffs", "mindiffinterval")
+    IMPORTANT_DIFF_ALERT = config.getint("winddiffs", "importantdiffinterval")
+    MIN_ALERT = config.getint("winddiffs", "min_wind_strenght_alert")
+
 
     def __setattr__(self, *_):
         # Prevent from changing the class memebers values
