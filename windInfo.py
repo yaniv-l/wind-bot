@@ -2,6 +2,9 @@ import datetime
 from enum import Enum
 import re
 import json
+from utils import config
+import consts
+
 
 class WindSpdUnit(Enum):
     KN = 'kn'
@@ -82,6 +85,28 @@ class windInfo:
         else:
             raise Exception('Error while getNumber from content {}'.format(val))
 
+    def getDateTime(self, val):
+
+        readDateTime = None
+        try:
+            ''' Convert an input string to datetime based on the format string of the station '''
+            dateTimeFormat = config.get(self.infoSourceName, "dateFormat") + " " + config.get(self.infoSourceName, "timeFormat")
+            readDateTime = datetime.datetime.strptime(val.strip(), dateTimeFormat)
+            # Check yead is datetime.minyear = input string did not include year. If so replace year to current year
+            if readDateTime.year == 1900:
+                readDateTime = readDateTime.replace(year=datetime.datetime.now().year)
+        finally:
+            return readDateTime
+
+    def getKnots(self, value):
+        if self._inputWindStrengthUnit == WindSpdUnit.MS:
+            return float(value) * 1.94
+        elif self._inputWindStrengthUnit == WindSpdUnit.KH:
+            return float(value) * 0.54
+        else:
+            return value
+
+
     def getString(self, val, regex = '[A-z]{2,4}'):
         ''' This uses regex to split the number from the string characters to get the
             ie if val is 45NE then will return NE '''
@@ -142,7 +167,7 @@ class windInfo:
 
     @windAvg.setter
     def windAvg(self, value):
-        self._windAvg = value
+        self._windAvg = self.getKnots(value)
 
     @property
     def windGust(self):
@@ -150,7 +175,7 @@ class windInfo:
 
     @windGust.setter
     def windGust(self, value):
-        self._windGust = value
+        self._windGust = self.getKnots(value)
 
     @property
     def windStrength(self):
@@ -240,5 +265,16 @@ class windInfo:
     @property
     def strengthSeperator(self):
         return self._strengthSeperator
+    
+    @property
+    def readDateTime(self):
+        return str.format("{} {}", self.infoDate, self.infoTime)
 
+    @readDateTime.setter
+    def readDateTime(self, Value):
+        readDateTime = self.getDateTime(Value)
+        if readDateTime is not None:
+            self.infoDate = readDateTime.strftime(config.get(self.infoSourceName, "dateFormat"))
+            self.infoTime = readDateTime.strftime(config.get(self.infoSourceName, "timeFormat"))
+        
     

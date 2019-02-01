@@ -21,14 +21,14 @@ def sense_for_wind_change(wind_reads):
             for i in range(1, len(wind_reads)-1):
                 if i <= 3:
                     # Summing the change in the wing avg and gust in the in the last 3 reads
-                    i_wind_avg_change += int(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]) - int(wind_reads[i][consts.WINDREADSFIELDS.WIND_AVG])
-                    i_wind_gust_change += int(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]) - int(wind_reads[i][consts.WINDREADSFIELDS.WIND_GUST])
+                    i_wind_avg_change += float(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]) - float(wind_reads[i][consts.WINDREADSFIELDS.WIND_AVG])
+                    i_wind_gust_change += float(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]) - float(wind_reads[i][consts.WINDREADSFIELDS.WIND_GUST])
                 if not b_change_alerter:
                     # Checking if a wind alert has been sent in the last reads perioed (default is last 6 reads)
                     b_change_alerter = wind_reads[i][consts.WINDREADSFIELDS.READ_ALERTED]
                 pass
 
-        if int(wind_reads[0][consts.WINDREADSFIELDS.WIND_AVG]) >= consts.WINDDIFF.MIN_ALERT:    
+        if float(wind_reads[0][consts.WINDREADSFIELDS.WIND_AVG]) >= consts.WINDDIFF.MIN_ALERT:    
             if i_wind_avg_change > 0 and i_wind_avg_change <= consts.WINDDIFF.MIN_DIFF_ALERT and i_wind_avg_change < consts.WINDDIFF.IMPORTANT_DIFF_ALERT and not b_change_alerter:
                 str_trend = "*עליה*"
                 str_UpDown = "עלתה ב "

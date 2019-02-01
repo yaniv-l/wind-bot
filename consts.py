@@ -14,9 +14,9 @@ class WINDCHANGE(object):
 
 class SOURCEREAD(object):
     PRIGAL = "Prigal"
-    EILAT_SURF_CENTER = "Eilat SurfCenter"
+    #EILAT_SURF_CENTER = "Eilat SurfCenter"
     EILAT_METEO_TECH = "Eilat MeteoTech"
-    NACHSHONIM = "Nachshonim"
+    #NACHSHONIM = "Nachshonim"
 
     def __setattr__(self, *_):
         # Prevent from changing the class memebers values
