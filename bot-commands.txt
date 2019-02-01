@@ -1,0 +1,3 @@
+psum - Prigal wind metrix summary image
+psnap - Prigal camera view snapshot
+esum - Eilat SurfCenter wind graph image

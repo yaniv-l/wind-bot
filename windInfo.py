@@ -99,9 +99,9 @@ class windInfo:
             return readDateTime
 
     def getKnots(self, value):
-        if self._inputWindStrengthUnit == WindSpdUnit.MS:
+        if self._inputWindStrengthUnit == WindSpdUnit.MS.value:
             return float(value) * 1.94
-        elif self._inputWindStrengthUnit == WindSpdUnit.KH:
+        elif self._inputWindStrengthUnit == WindSpdUnit.KH.Value:
             return float(value) * 0.54
         else:
             return value
