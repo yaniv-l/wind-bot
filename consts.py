@@ -26,6 +26,7 @@ class WINDDIFF(object):
     MIN_DIFF_ALERT = config.getint("winddiffs", "mindiffinterval")
     IMPORTANT_DIFF_ALERT = config.getint("winddiffs", "importantdiffinterval")
     MIN_ALERT = config.getint("winddiffs", "min_wind_strenght_alert")
+    WIND_CHECK_INTERVAL = config.getint("winddiffs", "wind_check_interval")
 
 
     def __setattr__(self, *_):

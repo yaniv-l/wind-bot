@@ -4,6 +4,7 @@ from windInfo import windInfo, WindSpdUnit
 from utils import config
 import consts
 import datetime
+from enum import IntFlag, Enum
 
 data = '{"name": "John Smith", "hometown": {"name": "New York", "id": 123}}'
 data2 = '{"_infoTime" : "11:30", "_infoSourceName": "Prigal", "_infoSourceURL": "http://wind.co.il/#sea_state", "_infoImage": "", "_waterTemp": null, "_Temp": null, "_barometerPreasure": null, "_strengthSeperator": "-"}' 
@@ -44,7 +45,47 @@ def getDateTime(val):
             readDateTime = readDateTime.replace(year=datetime.datetime.now().year)
         return readDateTime
 
+def getChangeTrend(current, prev):
+    ret = None
+    if current > prev:
+        ret = 1
+    elif current < prev:
+        ret = -1
+    else:
+        ret = 0
+    return ret
+
 # p = namedtuple('Person', '_name _age _gender')
 # c = City(u'San Francisco', u'CA', u'USA', False, 860000).to_dict()
 # b = City.from_dict(c)
 print(getDateTime(" 01/02 10:20  "))
+# numbres=[1.10, 1.25, 1.48, 1.5, 1.51, 1.8, 2, 2.1, 2.5, 2.51]
+# for number in numbres:
+#     print (str(number) + " --> " + str(round(number)))
+
+class WindTrend(IntFlag):
+    INCREASE = 1
+    DECREASE = 2
+    STEADY = 0
+
+defs = {
+        WindTrend.INCREASE : {"name": "increase", "change": "up", "label": "עליה"},
+        WindTrend.DECREASE : {"name": "decrease", "change": "down", "label": "ירידה"},
+        True : {"name": "increase", "change": "up", "label": "רציפה"}
+}
+
+# print(getChangeTrend(2,1))
+# print(getChangeTrend(1,2))
+# print(getChangeTrend(2,2))
+# print(bool(WindTrend.DECREASE & WindTrend.INCREASE))
+# print(bool(WindTrend.DECREASE & WindTrend.DECREASE))
+# print(bool(WindTrend.INCREASE & WindTrend.INCREASE))
+# print(bool(WindTrend.STEADY & WindTrend.STEADY))
+# print(bool(WindTrend.INCREASE & WindTrend.STEADY))
+
+a = defs[True]["label"]
+print (a)
+
+
+
+
