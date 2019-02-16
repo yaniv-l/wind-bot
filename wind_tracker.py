@@ -3,21 +3,22 @@ import consts
 import telegram_bot
 import firedata
 from datetime import datetime, time
-from enum import IntFlag
+from enum import IntEnum
 
 from utils import config
 
-class WindTrend(IntFlag):
+class WindTrend(IntEnum):
     INCREASE = 1
     DECREASE = 2
     STEADY = 0
 
 
 strings_dict = {
-        WindTrend.INCREASE : {"name": "Increase", "change": "UP", "label": "עליה"},
-        WindTrend.DECREASE : {"name": "decrease", "change": "down", "label": "ירידה"},
-        True : {"name": "consistant", "change": "", "label": "רציפה"},
-        False : {"name": "comulative", "change": "", "label": "מצטברת"}
+        WindTrend.INCREASE.name : {"name": "Increase", "change": "UP", "label": "עליה", "verb": "עלתה"},
+        WindTrend.DECREASE.name : {"name": "Decrease", "change": "DOWN", "label": "ירידה", "verb": "ירדה"},
+        WindTrend.STEADY.name : {"name": "Steady", "change": "STEADY", "label": "יציבה", "verb": ""},
+        True : {"name": "consistant", "change": "", "label": "רציפה", "verb": "*"},
+        False : {"name": "comulative", "change": "", "label": "מצטברת", "verb": ""}
 }
 
 
@@ -28,66 +29,53 @@ def sense_for_wind_change(wind_reads):
         i_wind_avg_change = 0
         i_wind_gust_change = 0
         b_change_alerter = False
-        str_trend = None
-        str_UpDown = None
-        str_windChange = None
-        i_changeTrend = None
         b_changeTrendConsistant = True
+        i_wind_trend_duration = 0
+        e_changeTrend = None
         
         # suppressing exception of type type convertion error and key missing errors
         with suppress(TypeError, KeyError):
             for i in range(1, len(wind_reads)-1):
                 if i <= 3:
                     # Summing the change in the wing avg and gust in the in the last 3 reads
-                    i_wind_avg_change += wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG] - wind_reads[i][consts.WINDREADSFIELDS.WIND_AVG]
-                    i_wind_gust_change += wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG] - wind_reads[i][consts.WINDREADSFIELDS.WIND_GUST]
-                    trend = getChangeTrend(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG], wind_reads[i][consts.WINDREADSFIELDS.WIND_AVG])
+                    i_wind_avg_change += int(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]) - int(wind_reads[i][consts.WINDREADSFIELDS.WIND_AVG])
+                    i_wind_gust_change += int(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]) - int(wind_reads[i][consts.WINDREADSFIELDS.WIND_GUST])
+                    trend = getChangeTrend(int(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]), int(wind_reads[i][consts.WINDREADSFIELDS.WIND_AVG]))
                     # Accumalating the mins on which the change trend is based on
-                    i_wind_trend_duration += consts.WINDDIFF.WIND_CHECK_INTERVAL
-                    # set the i_changeTrend for the first itrerate, and we'll check following itterare if they match
+                    i_wind_trend_duration += int(consts.WINDDIFF.WIND_CHECK_INTERVAL)
+                    # set the e_changeTrend for the first itrerate, and we'll check following itterare if they match
                     # same initial trend to conclude it is consistant 
-                    if i_changeTrend is None:
-                        i_changeTrend = trend
+                    if e_changeTrend is None:
+                        e_changeTrend = trend
                     else:
                         if b_changeTrendConsistant:
                             #b_changeTrendConsistant = i_changeTrend == trend
                             # Check if last tred match the initial trend - if not trend is not consistant and set b_changeTrendConsistant to False
-                            b_changeTrendConsistant = bool(i_changeTrend & trend)
+                            b_changeTrendConsistant = bool(e_changeTrend & trend)
                 if not b_change_alerter:
                     # Checking if a wind alert has been sent in the last reads perioed (default is last 6 reads)
                     b_change_alerter = wind_reads[i][consts.WINDREADSFIELDS.READ_ALERTED]
                 pass
-        # TODO - Review the sense check (if blocks)
-        if wind_reads[0][consts.WINDREADSFIELDS.WIND_AVG] >= consts.WINDDIFF.MIN_ALERT:    
-            if i_wind_avg_change > 0 and i_wind_avg_change <= consts.WINDDIFF.MIN_DIFF_ALERT and i_wind_avg_change < consts.WINDDIFF.IMPORTANT_DIFF_ALERT and not b_change_alerter:
-                str_trend = "*עליה*"
-                str_UpDown = "עלתה ב "
-                str_windChange = consts.WINDCHANGE.UP
-            elif i_wind_avg_change > 0 and i_wind_avg_change > consts.WINDDIFF.MIN_ALERT and i_wind_avg_change >= consts.WINDDIFF.IMPORTANT_DIFF_ALERT:
-                str_trend = "*עליה חזקה*"
-                str_UpDown = "*התגברה ב*"
-                str_windChange = consts.WINDCHANGE.UP
-            elif i_wind_avg_change < 0 and abs(i_wind_avg_change) >= consts.WINDDIFF.MIN_ALERT and abs(i_wind_avg_change) < consts.WINDDIFF.IMPORTANT_DIFF_ALERT and not b_change_alerter:
-                str_trend = "*ירידה*"
-                str_UpDown = "ירדה ב"
-                str_windChange = consts.WINDCHANGE.DOWN
-            elif i_wind_avg_change < 0 and abs(i_wind_avg_change) >= consts.WINDDIFF.IMPORTANT_DIFF_ALERT:
-                str_trend = "*ירידה*"
-                str_UpDown = "ירדה ב"
-                str_windChange = consts.WINDCHANGE.DOWN
-            else:
-                pass
         
-        if isAlertTime() and str_trend is not None and str_UpDown is not None:
+        if isChangeForAlert(int(wind_reads[0][consts.WINDREADSFIELDS.WIND_AVG]), i_wind_avg_change, b_change_alerter) and isAlertTime():
             # Formating alert messgae
-            alert_message = str.format("_הי, הרוח נושבת קרירה, נוסיף עוד קשר למפרש..._\n רוח במגמת {} - {} {}kn בחצי שעה האחרונה.\n כרגע {}kn עם גאסטים של {}kn\nכיוון {}, {}\nזמן קריאה {} {}\nמקור [{}]({})", \
-                str_trend, str_UpDown, i_wind_avg_change, wind_reads[0][consts.WINDREADSFIELDS.WIND_AVG], wind_reads[0][consts.WINDREADSFIELDS.WIND_GUST], wind_reads[0][consts.WINDREADSFIELDS.WIND_DIR], \
-                wind_reads[0][consts.WINDREADSFIELDS.WIND_DIR_NAME], wind_reads[0][consts.WINDREADSFIELDS.INFO_DATE], wind_reads[0][consts.WINDREADSFIELDS.INFO_TIME], wind_reads[0][consts.WINDREADSFIELDS.INFO_SOURCE_NAME], \
-                wind_reads[0][consts.WINDREADSFIELDS.INFO_SOURCE_URL])
-            # Sending wind alert to telegram chat group
-            telegram_bot.sendWindAlert(alert_message)
-            # Updating wind read for alert sent
-            firedata.setWindAlert(wind_reads[0][consts.WINDREADSFIELDS.DOC_ID], str_windChange)
+            sendWIndAlert(wind_reads[0], e_changeTrend,  b_changeTrendConsistant, i_wind_avg_change, i_wind_trend_duration, strings_dict[e_changeTrend.name]["change"])
+
+
+def isChangeForAlert(current_wind, wind_avg_change, change_alerter):
+    ret = False
+    if current_wind >= consts.WINDDIFF.MIN_ALERT:
+        # Wind is above min alert and no alert has been sent in the last processed wind reads
+        if not change_alerter:
+            ret = True
+        # Alert has been sent in the last processed wind reads but winds has increased significantly
+        # using abs(wind_avg_change) as change may be up or down - purpose here is to check if change is significant and requires an alert
+        elif abs(wind_avg_change) >= consts.WINDDIFF.IMPORTANT_DIFF_ALERT:
+            ret = True
+        else:
+            pass
+        
+    return ret
 
 
 def isAlertTime():
@@ -95,6 +83,37 @@ def isAlertTime():
     alertTill = datetime.strptime(config.get("alerttimewindow", "totime"), "%H:%M").time()
     now = datetime.now().time()
     return now >=  alertFrom and now < alertTill
+
+def sendWIndAlert(read, eTrend, bIsConssitant, wind_change, change_time, windChangeName):
+    # Sending wind alert to telegram chat group
+    telegram_bot.sendWindAlert(getAlertMessage(read, eTrend, bIsConssitant, wind_change, change_time))
+    # Updating wind read for alert sent
+    firedata.setWindAlert(read[consts.WINDREADSFIELDS.DOC_ID], windChangeName)
+
+def getAlertMessage(read, eTrend, bIsConssitant, wind_change, change_time):
+    str_verb = strings_dict[eTrend.name]["verb"]
+    str_trend = strings_dict[eTrend.name]["label"] + (" " + strings_dict[bIsConssitant]["label"] if eTrend != WindTrend.STEADY else "")
+    str_sub_message = str.format("{verb} בכ {change}kn ", verb=str_verb, change=wind_change) if eTrend != WindTrend.STEADY else ""
+    str_meaasge = str.format("{beach} - {trend}: {current}kn - {gust}kn {direction_name}-{direction}\n" + \
+                            "{sub_message}ב {change_time} דקות האחרונות\n" + \
+                            "זמן קריאה: {read_date} {read_time}\n" + \
+                            "מקור [{source}]({source_url})", \
+                            beach=config.get(read[consts.WINDREADSFIELDS.INFO_SOURCE_NAME], "beachName"), \
+                            current=read[consts.WINDREADSFIELDS.WIND_AVG], \
+                            gust=read[consts.WINDREADSFIELDS.WIND_GUST], \
+                            direction_name=read[consts.WINDREADSFIELDS.WIND_DIR_NAME], \
+                            direction=read[consts.WINDREADSFIELDS.WIND_DIR], \
+                            trend=str_trend, \
+                            sub_message=str_sub_message, \
+                            verb=str_verb, \
+                            change=wind_change,
+                            change_time=change_time, \
+                            read_date=read[consts.WINDREADSFIELDS.INFO_DATE], \
+                            read_time=read[consts.WINDREADSFIELDS.INFO_TIME], \
+                            source=config.get(read[consts.WINDREADSFIELDS.INFO_SOURCE_NAME], "frindlyName"), \
+                            source_url=read[consts.WINDREADSFIELDS.INFO_SOURCE_URL])
+    return str_meaasge
+
 
 def getChangeTrend(current, prev):
     ret = None

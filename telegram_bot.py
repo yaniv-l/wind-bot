@@ -24,7 +24,9 @@ def sendWindAlert(alert_message):
     updater = Updater(SECRETS.BOTID)
     dp = updater.dispatcher
     dp.bot.send_message(chat_id=SECRETS.CHATID, text=alert_message, parse_mode=ParseMode.MARKDOWN)
-    dp.bot.send_photo(chat_id=SECRETS.CHATID, photo=get_url("botimagecommands", "prigalsummary"))
+    image = get_url("botimagecommands", "psum")
+    if image:
+        dp.bot.send_photo(chat_id=SECRETS.CHATID, photo=image)
 
 
 def init_bot_listener():

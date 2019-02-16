@@ -4,7 +4,7 @@ from windInfo import windInfo, WindSpdUnit
 from utils import config
 import consts
 import datetime
-from enum import IntFlag, Enum
+from enum import IntFlag, IntEnum
 
 data = '{"name": "John Smith", "hometown": {"name": "New York", "id": 123}}'
 data2 = '{"_infoTime" : "11:30", "_infoSourceName": "Prigal", "_infoSourceURL": "http://wind.co.il/#sea_state", "_infoImage": "", "_waterTemp": null, "_Temp": null, "_barometerPreasure": null, "_strengthSeperator": "-"}' 
@@ -63,28 +63,33 @@ print(getDateTime(" 01/02 10:20  "))
 # for number in numbres:
 #     print (str(number) + " --> " + str(round(number)))
 
-class WindTrend(IntFlag):
+class WindTrend(IntEnum):
     INCREASE = 1
     DECREASE = 2
     STEADY = 0
 
 defs = {
-        WindTrend.INCREASE : {"name": "increase", "change": "up", "label": "עליה"},
-        WindTrend.DECREASE : {"name": "decrease", "change": "down", "label": "ירידה"},
-        True : {"name": "increase", "change": "up", "label": "רציפה"}
+        WindTrend.INCREASE.name : {"name": "Increase", "change": "UP", "label": "עליה", "verb": "עלתה"},
+        WindTrend.DECREASE.name : {"name": "Decrease", "change": "DOWN", "label": "ירידה", "verb": "ירדה"},
+        WindTrend.STEADY.name : {"name": "Steady", "change": "STEADY", "label": "יציבה", "verb": ""},
+        True : {"name": "consistant", "change": "", "label": "רציפה", "verb": "*"},
+        False : {"name": "comulative", "change": "", "label": "מצטברת", "verb": ""}
 }
 
 # print(getChangeTrend(2,1))
 # print(getChangeTrend(1,2))
 # print(getChangeTrend(2,2))
-# print(bool(WindTrend.DECREASE & WindTrend.INCREASE))
-# print(bool(WindTrend.DECREASE & WindTrend.DECREASE))
-# print(bool(WindTrend.INCREASE & WindTrend.INCREASE))
-# print(bool(WindTrend.STEADY & WindTrend.STEADY))
-# print(bool(WindTrend.INCREASE & WindTrend.STEADY))
-
-a = defs[True]["label"]
-print (a)
+print(bool(WindTrend.DECREASE & WindTrend.INCREASE))
+print(bool(WindTrend.DECREASE & WindTrend.DECREASE))
+print(bool(WindTrend.INCREASE & WindTrend.INCREASE))
+print(bool(WindTrend.STEADY & WindTrend.STEADY))
+print(bool(WindTrend.INCREASE & WindTrend.STEADY))
+print(WindTrend.STEADY)
+a = defs[WindTrend.STEADY.name]["label"]
+msg = str.format("{custom} ב {time}", \
+    custom=(str.format("{1} {2}", 1=1, 2=2) if True else  ""), \
+    time= 15)
+print (msg)
 
 
 
