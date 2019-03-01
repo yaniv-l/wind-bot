@@ -1,6 +1,7 @@
 from collections import namedtuple
 import json
 from utils import config
+import os
 
 # Declare constant variables here
 
@@ -66,6 +67,8 @@ class SECRETS(object):
     
     CHATID = int(data["wind_alert_group_chat_id"])
     BOTID = data["bot_token"]
+    # CHATID = int(os.getenv("wind_alert_group_chat_id"))
+    # BOTID = os.getenv("bot_token")
     
     @staticmethod
     def from_dict(source):
