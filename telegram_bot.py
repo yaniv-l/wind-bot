@@ -10,7 +10,10 @@ from utils import config
 
 def get_url(section, image):
     # Get the url for the specific image command - from on config file
-    url = config.get(section, image) + "?t=" + datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
+    url = None
+    if section and image:
+        url = config.get(section, image) + "?t=" + datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
+
     return url
 
 
@@ -20,13 +23,14 @@ def windalert(bot, update):
     bot.send_photo(chat_id=chat_id, photo=url)
 
 
-def sendWindAlert(alert_message):
+def sendWindAlert(alert_message, sourceName = None):
     updater = Updater(SECRETS.BOTID)
     dp = updater.dispatcher
     dp.bot.send_message(chat_id=SECRETS.CHATID, text=alert_message, parse_mode=ParseMode.MARKDOWN)
-    image = get_url("botimagecommands", "psum")
-    if image:
-        dp.bot.send_photo(chat_id=SECRETS.CHATID, photo=image)
+    if sourceName:
+        image = get_url("botimagecommands", config.get(sourceName, "botSumCmd"))
+        if image:
+                dp.bot.send_photo(chat_id=SECRETS.CHATID, photo=image)
 
 
 def init_bot_listener():

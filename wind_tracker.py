@@ -26,40 +26,44 @@ def sense_for_wind_change(wind_reads):
     # This fuction will get a wind reads list and will process it to check for wind change
     # list assumption is that its ordered - position 0 is last read and position at len-1 is last
     if wind_reads:
-        i_wind_avg_change = 0
-        i_wind_gust_change = 0
-        b_change_alerter = False
-        b_changeTrendConsistant = True
-        i_wind_trend_duration = 0
-        e_changeTrend = None
-        
-        # suppressing exception of type type convertion error and key missing errors
-        with suppress(TypeError, KeyError):
-            for i in range(1, len(wind_reads)-1):
-                if i <= 3:
-                    # Summing the change in the wing avg and gust in the in the last 3 reads
-                    i_wind_avg_change += int(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]) - int(wind_reads[i][consts.WINDREADSFIELDS.WIND_AVG])
-                    i_wind_gust_change += int(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]) - int(wind_reads[i][consts.WINDREADSFIELDS.WIND_GUST])
-                    trend = getChangeTrend(int(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]), int(wind_reads[i][consts.WINDREADSFIELDS.WIND_AVG]))
-                    # Accumalating the mins on which the change trend is based on
-                    i_wind_trend_duration += int(consts.WINDDIFF.WIND_CHECK_INTERVAL)
-                    # set the e_changeTrend for the first itrerate, and we'll check following itterare if they match
-                    # same initial trend to conclude it is consistant 
-                    if e_changeTrend is None:
-                        e_changeTrend = trend
-                    else:
-                        if b_changeTrendConsistant:
-                            #b_changeTrendConsistant = i_changeTrend == trend
-                            # Check if last tred match the initial trend - if not trend is not consistant and set b_changeTrendConsistant to False
-                            b_changeTrendConsistant = bool(e_changeTrend & trend)
-                if not b_change_alerter:
-                    # Checking if a wind alert has been sent in the last reads perioed (default is last 6 reads)
-                    b_change_alerter = wind_reads[i][consts.WINDREADSFIELDS.READ_ALERTED]
-                pass
-        
-        if isChangeForAlert(int(wind_reads[0][consts.WINDREADSFIELDS.WIND_AVG]), i_wind_avg_change, b_change_alerter) and isAlertTime():
-            # Formating alert messgae
-            sendWIndAlert(wind_reads[0], e_changeTrend,  b_changeTrendConsistant, i_wind_avg_change, i_wind_trend_duration, strings_dict[e_changeTrend.name]["change"])
+        # Make sure we have atleast two reads so to see a change
+        if len(wind_reads) >= 2:
+            # Make sure last read is not actually from last read (ocaisionly the wind reads are stuck for long time)
+            if (wind_reads[0][consts.WINDREADSFIELDS.INFO_DATE] + " " + wind_reads[0][consts.WINDREADSFIELDS.INFO_TIME]) != (wind_reads[1][consts.WINDREADSFIELDS.INFO_DATE] + " " + wind_reads[1][consts.WINDREADSFIELDS.INFO_TIME]):
+                i_wind_avg_change = 0
+                i_wind_gust_change = 0
+                b_change_alerter = False
+                b_changeTrendConsistant = True
+                i_wind_trend_duration = 0
+                e_changeTrend = None
+                
+                # suppressing exception of type type convertion error and key missing errors
+                with suppress(TypeError, KeyError):
+                    for i in range(1, len(wind_reads)-1):
+                        if i <= 3:
+                            # Summing the change in the wing avg and gust in the in the last 3 reads
+                            i_wind_avg_change += int(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]) - int(wind_reads[i][consts.WINDREADSFIELDS.WIND_AVG])
+                            i_wind_gust_change += int(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]) - int(wind_reads[i][consts.WINDREADSFIELDS.WIND_GUST])
+                            trend = getChangeTrend(int(wind_reads[i-1][consts.WINDREADSFIELDS.WIND_AVG]), int(wind_reads[i][consts.WINDREADSFIELDS.WIND_AVG]))
+                            # Accumalating the mins on which the change trend is based on
+                            i_wind_trend_duration += int(consts.WINDDIFF.WIND_CHECK_INTERVAL)
+                            # set the e_changeTrend for the first itrerate, and we'll check following itterare if they match
+                            # same initial trend to conclude it is consistant 
+                            if e_changeTrend is None:
+                                e_changeTrend = trend
+                            else:
+                                if b_changeTrendConsistant:
+                                    #b_changeTrendConsistant = i_changeTrend == trend
+                                    # Check if last tred match the initial trend - if not trend is not consistant and set b_changeTrendConsistant to False
+                                    b_changeTrendConsistant = bool(e_changeTrend & trend)
+                        if not b_change_alerter:
+                            # Checking if a wind alert has been sent in the last reads perioed (default is last 6 reads)
+                            b_change_alerter = wind_reads[i][consts.WINDREADSFIELDS.READ_ALERTED]
+                        pass
+                
+                if isChangeForAlert(int(wind_reads[0][consts.WINDREADSFIELDS.WIND_AVG]), i_wind_avg_change, b_change_alerter) and isAlertTime():
+                    # Formating alert messgae
+                    sendWIndAlert(wind_reads[0], e_changeTrend,  b_changeTrendConsistant, i_wind_avg_change, i_wind_trend_duration, strings_dict[e_changeTrend.name]["change"])
 
 
 def isChangeForAlert(current_wind, wind_avg_change, change_alerter):
@@ -86,7 +90,7 @@ def isAlertTime():
 
 def sendWIndAlert(read, eTrend, bIsConssitant, wind_change, change_time, windChangeName):
     # Sending wind alert to telegram chat group
-    telegram_bot.sendWindAlert(getAlertMessage(read, eTrend, bIsConssitant, wind_change, change_time))
+    telegram_bot.sendWindAlert(getAlertMessage(read, eTrend, bIsConssitant, wind_change, change_time), config.get(read[consts.WINDREADSFIELDS.INFO_SOURCE_NAME]))
     # Updating wind read for alert sent
     firedata.setWindAlert(read[consts.WINDREADSFIELDS.DOC_ID], windChangeName)
 

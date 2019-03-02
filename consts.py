@@ -63,10 +63,10 @@ class WINDREADSFIELDS(object):
 class SECRETS(object):
     # Read the json containing the serets
     with open("secrests.json.secret") as json_data:
-        data = json.load(json_data)
+        data = json.load(json_data)    
+        CHATID = int(data["wind_alert_group_chat_id"])
+        BOTID = data["bot_token"]
     
-    CHATID = int(data["wind_alert_group_chat_id"])
-    BOTID = data["bot_token"]
     # CHATID = int(os.getenv("wind_alert_group_chat_id"))
     # BOTID = os.getenv("bot_token")
     
