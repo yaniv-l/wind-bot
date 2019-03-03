@@ -1,5 +1,5 @@
 #!/bin/sh
 echo "hooks/build started"
 echo $DOCKERFILE_PATH
-docker build --build-arg bot_token=${bot_token} --build-arg wind_alert_group_chat_id=${wind_alert_group_chat_id} --build-arg firebase_env=${firebase_env} -f $DOCKERFILE_PATH --tag $IMAGE_NAME .
+docker build --build-arg bot_token=${bot_token} --build-arg wind_alert_group_chat_id=${wind_alert_group_chat_id} --build-arg firebase_env=${firebase_env} --tag $IMAGE_NAME .
 echo "hooks/build end"
