@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "hooks/build started"
 docker build --build-arg BOT_TOKEN=$BOT_TOKE \
-        --buld-arg WIND_ALERT_GROUP_CHAT_ID=$WIND_ALERT_GROUP_CHAT_ID \
+        --build-arg WIND_ALERT_GROUP_CHAT_ID=$WIND_ALERT_GROUP_CHAT_ID \
         --build-arg FIREBASE_ENV=$FIREBASE_ENV \
         --tag $IMAGE_NAME .
 echo "hooks/build end"
