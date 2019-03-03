@@ -1,1 +1,1 @@
-*/5 * * * * /bin/sh -c "cd /app && ./run.sh" >> /var/log/script.log
+01-51/10 * * * * /bin/sh -c "cd /app && ./run.sh" >> /var/log/script.log
