@@ -1,5 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env sh
+
 echo "hooks/build started"
-echo $IMAGE_NAME
-docker build --tag $IMAGE_NAME . --build-arg FIREBASE_ENV=$FIREBASE_ENV
+docker build --build-arg FIREBASE_ENV=$FIREBASE_ENV -t $IMAGE_NAME .
 echo "hooks/build end"
