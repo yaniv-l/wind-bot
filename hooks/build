@@ -1,4 +1,3 @@
 #!/usr/bin/env sh
 
-echo "hooks/build started"
-docker build --no-cache --build-arg FIREBASE_ENV=$FIREBASE_ENV -t $IMAGE_NAME .
+docker build --build-arg FIREBASE_ENV=123 -t $IMAGE_NAME .
