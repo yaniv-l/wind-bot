@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# This file will be triggered once the build has finished
+echo "*** Hooks POST BUILD started ***"
+echo "Removing the secret file created in the build"
+echo "removing firebase secret"
+rm wind-info-firebase-adminsdk-tfxe3-aa9146d5b8.json.secret && echo "rm firebase success" || "rm firebase fail"
+
+echo "removing telegram secret"
+rm secrests.json.secret && echo "rm telegram success" || "rm telegram fail"
+
+echo "*** Hooks POST BUILD ended ***"
