@@ -4,6 +4,13 @@ echo "*** Hooks build started ***"
 
 # FIREBASE_ENV is to big to be used directly as --build-arg, creating a file which will be available for the Dockerfile
 echo "Generating firebase client info..."
+
+# As the JSON value cannot contain be multiline with line brakes, and as the private_key is multiline
+# we create the generate the file using a vriables from automated build envinronment variables where the
+# private_key is a string with \n for the new lines
+# We use this method instead of the echo as echo inteperates the \n and breaks the line.
+# This method keep the authentic of the value of private_key as is (i.e string with \n)
+
 cat << EOF > wind-info-firebase-adminsdk-tfxe3-aa9146d5b8.json.secret
 {
   "type": "service_account",
@@ -18,6 +25,8 @@ cat << EOF > wind-info-firebase-adminsdk-tfxe3-aa9146d5b8.json.secret
   "client_x509_cert_url": "$CLIENT_X509_CERT_URL"
 }
 EOF
+
+# running docker build command using the build-arg
 
 docker build --build-arg BOT_TOKEN=$BOT_TOKEN \
     --build-arg WIND_ALERT_GROUP_CHAT_ID=$WIND_ALERT_GROUP_CHAT_ID \
