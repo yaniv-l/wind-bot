@@ -1,3 +1,9 @@
 #!/usr/bin/env sh
 
-docker build --build-arg BOT_TOKEN=$BOT_TOKEN --build-arg WIND_ALERT_GROUP_CHAT_ID=$WIND_ALERT_GROUP_CHAT_ID -t $IMAGE_NAME .
+echo "Hooks build started"
+echo $FIREBASE_ENV
+
+docker build --build-arg BOT_TOKEN=$BOT_TOKEN /
+--build-arg WIND_ALERT_GROUP_CHAT_ID=$WIND_ALERT_GROUP_CHAT_ID /
+--build-arg FIREBASE_ENV="$FIREBASE_ENV" /
+-t $IMAGE_NAME .
