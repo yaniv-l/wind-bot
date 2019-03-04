@@ -2,6 +2,12 @@ FROM python:alpine3.7
 ARG BOT_TOKEN
 ARG WIND_ALERT_GROUP_CHAT_ID
 ARG FIREBASE_ENV
+ARG CLIENT_EMAIL
+ARG CLIENT_ID
+ARG CLIENT_X509_CERT_URL
+ARG PRIVATE_KEY
+ARG PRIVATE_KEY_ID
+ARG PROJECT_ID
 RUN apk update && apk upgrade
 RUN apk add --no-cache --virtual .pynacl_deps build-base python3-dev openssl-dev libffi-dev
 COPY . /app
