@@ -78,7 +78,8 @@ def isChangeForAlert(current_wind, wind_avg_change, change_alerter):
             ret = True
         else:
             pass
-        
+        # TODO add more condition to find if current wind is lower then min alert and last alerted read
+    
     return ret
 
 
@@ -90,7 +91,7 @@ def isAlertTime():
 
 def sendWIndAlert(read, eTrend, bIsConssitant, wind_change, change_time, windChangeName):
     # Sending wind alert to telegram chat group
-    telegram_bot.sendWindAlert(getAlertMessage(read, eTrend, bIsConssitant, wind_change, change_time), config.get(read[consts.WINDREADSFIELDS.INFO_SOURCE_NAME]))
+    telegram_bot.sendWindAlert(getAlertMessage(read, eTrend, bIsConssitant, wind_change, change_time), read[consts.WINDREADSFIELDS.INFO_SOURCE_NAME])
     # Updating wind read for alert sent
     firedata.setWindAlert(read[consts.WINDREADSFIELDS.DOC_ID], windChangeName)
 

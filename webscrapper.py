@@ -89,6 +89,6 @@ def scrapWebData(html, info):
 
 
 if __name__ == '__main__':
-    print('Getting the list of names....')
+    print('Starting scrapping for wind reads....')
     getWinds()
     print('... done.\n')
