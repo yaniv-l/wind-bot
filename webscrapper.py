@@ -4,6 +4,7 @@ from contextlib import closing
 from bs4 import BeautifulSoup
 import json
 from types import SimpleNamespace as Namespace
+import datetime
 
 import consts
 from windInfo import windInfo, WindSpdUnit
@@ -53,8 +54,8 @@ def getWinds():
     Downloads the page where the list of mathematicians is found
     and returns a list of strings, one per mathematician
     """
-    for source in [consts.SOURCEREAD.PRIGAL, consts.SOURCEREAD.EILAT_METEO_TECH]:
-        url = config.get(source, "readsURL")
+    for source in [consts.SOURCEREAD.PRIGAL, consts.SOURCEREAD.EILAT_METEO_TECH, consts.SOURCEREAD.DOR_NACHSHOLIM]:
+        url = config.get(source, "readsURL") + "?t=" + str(datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S"))
         windUnits = config.get(source, "windUnits")
         response = simple_get(url)
         if response is not None:
@@ -84,6 +85,13 @@ def scrapWebData(html, info):
         info.windGust = tr.contents[9].contents[0].contents[0]
         info.waterTemp = tr.contents[11].contents[0].contents[0]
         info.barometerPreasure = tr.contents[5].contents[0].contents[0]
+    elif info.infoSourceName == consts.SOURCEREAD.DOR_NACHSHOLIM:
+        info.readDateTime = html.find("span", attrs={"id" : "latestConditionsQtip"}).contents[0]
+        tbody = html.find("tbody", attrs={"id" : "hobolink-latest-conditions-form:conditions-tree_data"})
+        info.Temp = str(tbody.contents[1].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
+        info.windAvg = str(tbody.contents[2].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
+        info.windGust = str(tbody.contents[4].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
+        info.barometerPreasure = str(tbody.contents[9].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
     else:
         pass
 

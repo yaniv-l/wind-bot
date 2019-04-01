@@ -84,14 +84,33 @@ class windInfo:
                 return None
         else:
             raise Exception('Error while getNumber from content {}'.format(val))
+    
+    
+    def extractRegEx(self, extractorConfig, val):
+        ''' This function will check if we have a config to extract data from the value
+            if its a has, then uses regex to split the required data from the val using regex '''
+        regex = config.get(self.infoSourceName, extractorConfig)
+        if regex is None or not regex:
+            return val
+        else:
+            extract = re.findall(regex, val)
+            if extract:
+                if len(extract[0]) > 0:
+                    return extract[0][0]
+                else:
+                    return extract[0]
+            else:
+                return None
+        
 
     def getDateTime(self, val):
 
         readDateTime = None
+        datetimeVal = self.extractRegEx("datetimeExtractor", val)
         try:
             ''' Convert an input string to datetime based on the format string of the station '''
             dateTimeFormat = config.get(self.infoSourceName, "dateFormat") + " " + config.get(self.infoSourceName, "timeFormat")
-            readDateTime = datetime.datetime.strptime(val.strip(), dateTimeFormat)
+            readDateTime = datetime.datetime.strptime(datetimeVal.strip(), dateTimeFormat.strip())
             # Check yead is datetime.minyear = input string did not include year. If so replace year to current year
             if readDateTime.year == 1900:
                 readDateTime = readDateTime.replace(year=datetime.datetime.now().year)
@@ -101,7 +120,7 @@ class windInfo:
     def getKnots(self, value):
         if self._inputWindStrengthUnit == WindSpdUnit.MS.value:
             return round(float(value) * 1.94)
-        elif self._inputWindStrengthUnit == WindSpdUnit.KH.Value:
+        elif self._inputWindStrengthUnit == WindSpdUnit.KH.value:
             return round(float(value) * 0.54)
         else:
             return value
@@ -110,7 +129,7 @@ class windInfo:
     def getString(self, val, regex = '[A-z]{2,4}'):
         ''' This uses regex to split the number from the string characters to get the
             ie if val is 45NE then will return NE '''
-        strVal = re.findall(regex, val)
+        strVal = re.fullmatch(regex, val)
         if strVal:
             return strVal[0]
         else:
