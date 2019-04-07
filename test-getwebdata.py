@@ -64,6 +64,7 @@ def scrapWebData(html, info):
     info.Temp = str(tbody.contents[1].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
     info.windAvg = str(tbody.contents[2].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
     info.windGust = str(tbody.contents[4].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
+    info.windDir = str(tbody.contents[3].contents[0].contents[10].contents[1].contents[1].contents[0])
     info.barometerPreasure = str(tbody.contents[9].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
 
 getWinds()

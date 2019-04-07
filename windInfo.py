@@ -114,6 +114,9 @@ class windInfo:
             # Check yead is datetime.minyear = input string did not include year. If so replace year to current year
             if readDateTime.year == 1900:
                 readDateTime = readDateTime.replace(year=datetime.datetime.now().year)
+                # If input string did not include date then day and month will  also be default (1/1/1900) so replacing with current day and month
+                if readDateTime.day == 1 and readDateTime.month == 1:
+                    readDateTime = readDateTime.replace(day=datetime.datetime.now().day, month=datetime.datetime.now().month)
         finally:
             return readDateTime
 
@@ -123,7 +126,7 @@ class windInfo:
         elif self._inputWindStrengthUnit == WindSpdUnit.KH.value:
             return round(float(value) * 0.54)
         else:
-            return value
+            return round(float(value))
 
 
     def getString(self, val, regex = '[A-z]{2,4}'):
@@ -293,7 +296,9 @@ class windInfo:
     def readDateTime(self, Value):
         readDateTime = self.getDateTime(Value)
         if readDateTime is not None:
-            self.infoDate = readDateTime.strftime(config.get(self.infoSourceName, "dateFormat"))
-            self.infoTime = readDateTime.strftime(config.get(self.infoSourceName, "timeFormat"))
+            dFormat = config.get(self.infoSourceName, "dateFormat") if  config.get(self.infoSourceName, "dateFormat") else '%d/%m/%y'
+            tFormat = config.get(self.infoSourceName, "timeFormat") if  config.get(self.infoSourceName, "timeFormat") else '%H:%M'
+            self.infoDate = readDateTime.strftime(dFormat)
+            self.infoTime = readDateTime.strftime(tFormat)
         
     
