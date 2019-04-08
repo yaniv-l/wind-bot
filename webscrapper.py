@@ -20,7 +20,7 @@ def simple_get(url):
     text content, otherwise return None.
     """
     try:
-        with closing(get(url, stream=True, verify=False)) as resp:
+        with closing(get(url, stream=True, verify=False, headers={'Cache-Control': 'no-cache'})) as resp:
             if is_good_response(resp):
                 return resp.content
             else:
@@ -54,21 +54,25 @@ def getWinds():
     Downloads the page where the list of mathematicians is found
     and returns a list of strings, one per mathematician
     """
-    for source in [consts.SOURCEREAD.PRIGAL, consts.SOURCEREAD.EILAT_METEO_TECH, consts.SOURCEREAD.DOR_NACHSHOLIM]:
+    for source in [consts.SOURCEREAD.PRIGAL, consts.SOURCEREAD.EILAT_METEO_TECH, consts.SOURCEREAD.DOR_NACHSHOLIM, consts.SOURCEREAD.SURFO]:
         url = config.get(source, "readsURL") + "?t=" + str(datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S"))
         windUnits = config.get(source, "windUnits")
         response = simple_get(url)
         if response is not None:
-            html = BeautifulSoup(response, 'html.parser')
-            info = windInfo(source, url, windUnits)
-            scrapWebData(html, info)
-            jsonInfo = info.toJSON()
-            firedata.writeWindReads(jsonInfo)
-            res = firedata.readWindReads(source)
-            wind_tracker.sense_for_wind_change(res)
+            try:
+                html = BeautifulSoup(response, 'html.parser')
+                info = windInfo(source, url, windUnits)
+                scrapWebData(html, info)
+                jsonInfo = info.toJSON()
+                firedata.writeWindReads(jsonInfo)
+                res = firedata.readWindReads(source)
+                wind_tracker.sense_for_wind_change(res)
+            except Exception as e:
+                log_error('Exception during response handling: {1}'.format(str(e)))
         else:   
             # Raise an exception if we failed to get any data from the url
-            raise Exception('Error retrieving contents at {}'.format(url))
+            # raise Exception('Error retrieving contents at {}'.format(url))
+            log_error('Error retrieving contents at {}'.format(url))
 
 
 def scrapWebData(html, info):
@@ -91,7 +95,17 @@ def scrapWebData(html, info):
         info.Temp = str(tbody.contents[1].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
         info.windAvg = str(tbody.contents[2].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
         info.windGust = str(tbody.contents[4].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
+        info.windDir = str(tbody.contents[3].contents[0].contents[10].contents[1].contents[1].contents[0])
         info.barometerPreasure = str(tbody.contents[9].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
+    elif info.infoSourceName == consts.SOURCEREAD.SURFO:
+        div = html.find("div", attrs={"class" : "w_line firstline"})
+        info.readDateTime = str(div.contents[0].contents[0])
+        info.Temp = str(div.contents[5].contents[0])
+        info.windAvg = str(div.contents[2].contents[0])
+        info.windGust = str(div.contents[3].contents[0])
+        info.windDir = str(div.contents[1].contents[0])
+        updatedate = html.find("span", attrs={"id": "ContentPlaceHolder1_date"})
+        info.infoDate = updatedate.contents[0]
     else:
         pass
 

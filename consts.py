@@ -17,8 +17,8 @@ class SOURCEREAD(object):
     PRIGAL = "Prigal"
     #EILAT_SURF_CENTER = "Eilat SurfCenter"
     EILAT_METEO_TECH = "Eilat MeteoTech"
-    #NACHSHONIM = "Nachshonim"
     DOR_NACHSHOLIM = "Dor-Nachsholim"
+    SURFO = "surfo"
 
     def __setattr__(self, *_):
         # Prevent from changing the class memebers values

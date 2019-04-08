@@ -121,12 +121,13 @@ class windInfo:
             return readDateTime
 
     def getKnots(self, value):
+        val = self.getNumber(value)
         if self._inputWindStrengthUnit == WindSpdUnit.MS.value:
-            return round(float(value) * 1.94)
+            return round(float(val) * 1.94)
         elif self._inputWindStrengthUnit == WindSpdUnit.KH.value:
-            return round(float(value) * 0.54)
+            return round(float(val) * 0.54)
         else:
-            return round(float(value))
+            return round(float(val))
 
 
     def getString(self, val, regex = '[A-z]{2,4}'):

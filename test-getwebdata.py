@@ -30,7 +30,7 @@ def simple_get(url):
     text content, otherwise return None.
     """
     try:
-        with closing(get(url, stream=True, verify=False)) as resp:
+        with closing(get(url, stream=True, verify=False, headers={'Cache-Control': 'no-cache'})) as resp:
             if is_good_response(resp):
                 return resp.content
             else:
@@ -47,11 +47,11 @@ def getWinds():
     and returns a list of strings, one per mathematician
     """
     
-    url = "https://www.hobolink.com/p/bb5b1433de5f0ebae4d54a44123c7e4b"
+    url = "http://www.surfo.co.il/%D7%9E%D7%96%D7%92-%D7%90%D7%95%D7%95%D7%99%D7%A8"
     response = simple_get(url)
     if response is not None:
         html = BeautifulSoup(response, 'html.parser')
-        info = windInfo("Dor-Nachsholim", url, WindSpdUnit.KN)
+        info = windInfo("surfo", url, WindSpdUnit.KN)
         scrapWebData(html, info)
     else:   
         # Raise an exception if we failed to get any data from the url
@@ -59,12 +59,14 @@ def getWinds():
 
 
 def scrapWebData(html, info):
-    info.readDateTime = html.find("span", attrs={"id" : "latestConditionsQtip"}).contents[0]
-    tbody = html.find("tbody", attrs={"id" : "hobolink-latest-conditions-form:conditions-tree_data"})
-    info.Temp = str(tbody.contents[1].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
-    info.windAvg = str(tbody.contents[2].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
-    info.windGust = str(tbody.contents[4].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
-    info.windDir = str(tbody.contents[3].contents[0].contents[10].contents[1].contents[1].contents[0])
-    info.barometerPreasure = str(tbody.contents[9].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
+    div = html.find("div", attrs={"class" : "w_line firstline"})
+    info.readDateTime = str(div.contents[0].contents[0])
+    info.Temp = str(div.contents[5].contents[0])
+    info.windAvg = str(div.contents[2].contents[0])
+    info.windGust = str(div.contents[3].contents[0])
+    info.windDir = str(div.contents[1].contents[0])
+    updatedate = html.find("span", attrs={"id": "ContentPlaceHolder1_date"})
+    info.infoDate = updatedate.contents[0]
+    pass
 
 getWinds()
