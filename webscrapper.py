@@ -68,7 +68,7 @@ def getWinds():
                 res = firedata.readWindReads(source)
                 wind_tracker.sense_for_wind_change(res)
             except Exception as e:
-                log_error('Exception during response handling: {1}'.format(str(e)))
+                log_error('Exception during response handling: {0}'.format(str(e)))
         else:   
             # Raise an exception if we failed to get any data from the url
             # raise Exception('Error retrieving contents at {}'.format(url))
