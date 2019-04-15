@@ -68,7 +68,7 @@ def sense_for_wind_change(wind_reads):
 
 def isChangeForAlert(current_wind, wind_avg_change, change_alerter):
     ret = False
-    if abs(current_wind) >= consts.WINDDIFF.MIN_ALERT and abs(current_wind) < consts.WINDDIFF.IMPORTANT_DIFF_ALERT:
+    if current_wind >= consts.WINDDIFF.MIN_ALERT:
         # Wind is above min alert and no alert has been sent in the last processed wind reads
         if not change_alerter:
             ret = True
