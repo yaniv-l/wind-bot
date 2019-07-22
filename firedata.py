@@ -11,6 +11,7 @@ def writeWindReads(jsonRead):
     try:
         # firebase timestamp
         jsonRead['_scrapTimeStamp'] = firestore.firestore.SERVER_TIMESTAMP
+        jsonRead['_infoDateTime'] = firestore.firestore.SERVER_TIMESTAMP
     except:
         pass
     finally:

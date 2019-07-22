@@ -10,7 +10,9 @@ import consts
 from windInfo import windInfo, WindSpdUnit
 import firedata
 import wind_tracker
-from utils import config
+from utils import config, getMinDiff
+from vision import getDataFromImage
+from telegram_bot import get_url
 
 
 def simple_get(url):
@@ -77,10 +79,26 @@ def getWinds():
 
 def scrapWebData(html, info):
     if info.infoSourceName == consts.SOURCEREAD.PRIGAL:
-        info.windDir = html.find("div", attrs={"class" : "inf-wind-direction"}).contents[0].text
-        info._infoDate = html.find("h3", attrs={"class" : "inf-time-date rel-gradient english"}).text
-        info._infoTime = html.find("p", attrs={"class" : "inf-time-time english"}).text
-        info.windStrength = html.find("div", attrs={"class" : "inf-wind-strength"}).contents[0].text
+        bUseWebData = True
+        # First we get the read date and time from webscrap
+        readDate = html.find("h3", attrs={"class" : "inf-time-date rel-gradient english"}).text
+        readTime = html.find("p", attrs={"class" : "inf-time-time english"}).text
+        info.readDateTime = readDate + " " + readTime
+        # Check if minute diff between datetime from webscrap is larger then the scrap interval - occasionly sensor reads are not being updated for long time
+        if getMinDiff(datetime.datetime.now(), info.readDateTime) > config.getint("winddiffs", "wind_check_interval"):
+            # sensor read is not up-to-date - check if we're configured for read data from image
+            if config.getboolean("vision", "use_gcp_vision"):
+                texts = getDataFromImage(get_url("botimagecommands", "psum"))
+                if texts is not None and len(texts) > 0:
+                    bUseWebData = False
+        info.windDir = (html.find("div", attrs={"class" : "inf-wind-direction"}).contents[0].text if bUseWebData else texts["dir"])
+        info.infoDate = (info.infoDate if bUseWebData else texts["readDate"])
+        info.infoTime = (info.infoDate if bUseWebData else texts["readTime"])
+        info.windStrength = (html.find("div", attrs={"class" : "inf-wind-strength"}).contents[0].text if bUseWebData else str(texts["wind"]) + " - " + str(texts["gusts"]))
+        info.barometerPreasure = (None if bUseWebData else texts["barometer"])
+        # info._infoDate = html.find("h3", attrs={"class" : "inf-time-date rel-gradient english"}).text
+        # info._infoTime = (html.find("p", attrs={"class" : "inf-time-time english"}).text)
+        
     elif info.infoSourceName == consts.SOURCEREAD.EILAT_METEO_TECH:
         tr = html.find("tr", attrs={"bgcolor" : "#ccffff"})
         info.windDir = str(tr.contents[7].contents[0].contents[0])
@@ -93,9 +111,9 @@ def scrapWebData(html, info):
         info.readDateTime = html.find("span", attrs={"id" : "latestConditionsQtip"}).contents[0]
         tbody = html.find("tbody", attrs={"id" : "hobolink-latest-conditions-form:conditions-tree_data"})
         info.Temp = str(tbody.contents[1].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
-        info.windAvg = str(tbody.contents[2].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
-        info.windGust = str(tbody.contents[4].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
-        info.windDir = str(tbody.contents[3].contents[0].contents[10].contents[1].contents[1].contents[0])
+        info.windAvg = str(tbody.contents[4].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
+        info.windGust = str(tbody.contents[6].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
+        info.windDir = str(tbody.contents[5].contents[0].contents[10].contents[1].contents[1].contents[0])
         info.barometerPreasure = str(tbody.contents[9].contents[0].contents[10].contents[1].contents[1].contents[0].contents[0])
     elif info.infoSourceName == consts.SOURCEREAD.SURFO:
         div = html.find("div", attrs={"class" : "w_line firstline"})

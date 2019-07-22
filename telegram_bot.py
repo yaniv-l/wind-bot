@@ -12,7 +12,7 @@ def get_url(section, image):
     # Get the url for the specific image command - from on config file
     url = None
     if section and image:
-        url = config.get(section, image) + "?t=" + datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
+        url = config.get(section, image) + "?t=" + datetime.datetime.now().strftime("%d\%m\%Y-%H:%M:%S")
 
     return url
 

@@ -24,6 +24,7 @@ class windInfo:
         self._windStrength = None
         self._infoDate = None
         self._infoTime = None
+        self._infoDateTime = None
         self._infoSourceName = sourceName
         self._infoSourceURL = sourceURL
         self._infoImage = ""
@@ -291,12 +292,14 @@ class windInfo:
     
     @property
     def readDateTime(self):
-        return str.format("{} {}", self.infoDate, self.infoTime)
+        # TODO retrun alaways datetime datatype 
+        return self._infoDateTime if self._infoDateTime is not None else  str.format("{} {}", self.infoDate, self.infoTime)
 
     @readDateTime.setter
     def readDateTime(self, Value):
         readDateTime = self.getDateTime(Value)
         if readDateTime is not None:
+            self._infoDateTime = readDateTime
             dFormat = config.get(self.infoSourceName, "dateFormat") if  config.get(self.infoSourceName, "dateFormat") else '%d/%m/%y'
             tFormat = config.get(self.infoSourceName, "timeFormat") if  config.get(self.infoSourceName, "timeFormat") else '%H:%M'
             self.infoDate = readDateTime.strftime(dFormat)

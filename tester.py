@@ -76,6 +76,10 @@ defs = {
         False : {"name": "comulative", "change": "", "label": "מצטברת", "verb": ""}
 }
 
+strDate = datetime.datetime.strptime("23/04 22:30", "%d/%m %H:%M")
+timediff = datetime.datetime.now() - strDate
+timediffMin = int(timediff.days *24 *60) + int(timediff.seconds/60)
+print(timediffMin)
 # print(getChangeTrend(2,1))
 # print(getChangeTrend(1,2))
 # print(getChangeTrend(2,2))
@@ -86,9 +90,9 @@ print(bool(WindTrend.STEADY & WindTrend.STEADY))
 print(bool(WindTrend.INCREASE & WindTrend.STEADY))
 print(WindTrend.STEADY)
 a = defs[WindTrend.STEADY.name]["label"]
-msg = str.format("{custom} ב {time}", \
-    custom=(str.format("{1} {2}", 1=1, 2=2) if True else  ""), \
-    time= 15)
+# msg = str.format("{custom} ב {time}", \
+#     custom=(str.format("{1} {2}", 1=1, 2=2) if True else  ""), \
+#     time= 15)
 print (msg)
 
 
