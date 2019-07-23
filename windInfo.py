@@ -149,6 +149,8 @@ class windInfo:
         if isinstance(z, WindSpdUnit):
             # if object is of type WindSpdUnits, we'll return the value
             return z.value
+        elif isinstance(z, (datetime.date, datetime.datetime)):
+            return z.isoformat()
         else:
             type_name = z.__class__.__name__
             raise TypeError(f"Object of type '{type_name}' is not JSON serializable")
